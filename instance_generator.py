@@ -60,10 +60,13 @@ class Instance_generator ():
         self.idx += 1
         if self.idx < len(self.keys):
             instance = self.instances[self.keys[self.idx]]
-            instance = self.__normalize_instance(instance, method)
+            if instance["dimension"] > self.bounds[1]:
+                return self.next_instance(method)
+            
+            instance["edge_weight"] = self.__normalize_instance(instance, method)
 
             if self.has_solution:
-                solution = self.solution[self.keys[self.idx]]
+                solution = self.solutions[self.keys[self.idx]]
 
                 return instance, solution
             
