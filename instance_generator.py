@@ -83,19 +83,59 @@ class Instance_generator ():
     
     def __normalize_instance (self, instance, method):
         if method == "none":
-            return instance
+            return instance["edge_weight"]
         
         elif method == "laplacian":
             return self.__laplacian_normalization(instance)
+        
+        elif method == "symmetric":
+            return self.__symmetric_normalization(instance)
+        
+        elif method == "test":
+            return self.__test_normalization(instance)
         
     
     def __laplacian_normalization (self, instance):
         adj_matrix = np.array(instance["edge_weight"])
         deg_matrix = np.diag(np.sum(adj_matrix, axis=1))
+        print("D", deg_matrix)
+        print("A", adj_matrix)
 
         L = deg_matrix - adj_matrix
+        print("L", L)
 
         D_sqrt = np.where(deg_matrix > 0, 1/np.sqrt(deg_matrix), 0)
         print(D_sqrt)
 
         return D_sqrt @ L @ D_sqrt
+    
+
+    def __symmetric_normalization (self, instance):
+        adj_matrix = np.array(instance["edge_weight"])
+        deg_matrix = np.diag(np.sum(adj_matrix, axis=1))
+
+        D_sqrt = np.where(deg_matrix > 0, 1/np.sqrt(deg_matrix), 0)
+
+        return D_sqrt @ adj_matrix @ D_sqrt
+    
+
+    def __test_normalization (self, instance):
+        adj_matrix = np.array(instance["edge_weight"])
+        deg_matrix = np.diag(np.sum(adj_matrix, axis=1))
+        #print("D", deg_matrix)
+        #print("A", adj_matrix)
+
+        L = deg_matrix - adj_matrix
+        #print("L", L)
+
+        D_sqrt = np.where(deg_matrix > 0, 1/np.sqrt(deg_matrix), 0)
+        #print(D_sqrt)
+
+        return np.eye(instance["dimension"]) - (D_sqrt @ L @ D_sqrt)
+    
+
+
+# gen = Instance_generator("test_set")
+# inst, sol = gen.next_instance("symmetric")
+
+# print(inst["edge_weight"])
