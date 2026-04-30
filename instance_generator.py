@@ -60,11 +60,15 @@ class Instance_generator ():
         self.idx += 1
         if self.idx < len(self.keys):
             instance = self.instances[self.keys[self.idx]]
+            #print(self.keys[self.idx])
             if instance["dimension"] > self.bounds[1]:
                 return self.next_instance(method)
             
             instance["edge_weight"] = self.__normalize_instance(instance, method)
 
+            if instance["edge_weight"].any() == None:
+                return self.next_instance(method)
+            
             if self.has_solution:
                 solution = self.solutions[self.keys[self.idx]]
 
@@ -76,13 +80,13 @@ class Instance_generator ():
         elif self.reset:
             random.shuffle(self.keys)
             self.idx = -1
-            return self.next_instance()
+            return self.next_instance(method)
 
-        return None
+        return StopIteration
 
     
     def __normalize_instance (self, instance, method):
-        if method == "none":
+        if method == None:
             return instance["edge_weight"]
         
         elif method == "laplacian":
@@ -133,7 +137,6 @@ class Instance_generator ():
 
         return np.eye(instance["dimension"]) - (D_sqrt @ L @ D_sqrt)
     
-
 
 # gen = Instance_generator("test_set")
 # inst, sol = gen.next_instance("symmetric")
